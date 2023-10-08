@@ -19,9 +19,9 @@ public class EmployeeService {
         this.getAllEmployeesRepository = getAllEmployeesRepository;
     }
 
-    public List<EmployeeDto> getAllEmployees(int pageNumber, int offset) {
+    public List<EmployeeDto> getAllEmployees(int page, int offset) {
         LOGGER.info("getAllEmployees");
-        List<Employee> result = getAllEmployeesRepository.getAllEmployees(pageNumber, offset);
+        List<Employee> result = getAllEmployeesRepository.getAllEmployees(page, offset);
         return result.stream()
                 .map(EmployeeDto::newEmployeeDto)
                 .toList();

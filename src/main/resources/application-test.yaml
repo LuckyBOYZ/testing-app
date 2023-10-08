@@ -1,0 +1,6 @@
+spring:
+  flyway:
+    enabled: true
+    clean-disabled: true
+    clean-on-validation-error: false
+    baseline-on-migrate: true

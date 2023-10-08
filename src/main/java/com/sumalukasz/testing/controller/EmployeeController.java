@@ -6,6 +6,7 @@ import com.sumalukasz.testing.model.dto.EmployeeDto;
 import com.sumalukasz.testing.service.EmployeeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,20 +26,20 @@ public class EmployeeController {
         this.employeeService = employeeService;
     }
 
-    @GetMapping
-    public ResponseEntity<List<EmployeeDto>> getAllEmployees(@RequestParam(required = false, defaultValue = "1") int pageNumber,
+    @GetMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<EmployeeDto>> getAllEmployees(@RequestParam(required = false, defaultValue = "1") int page,
                                                              @RequestParam(required = false, defaultValue = "10") int offset) {
-        LOGGER.info("getAllEmployees|pageNumber={},offset={}", pageNumber, offset);
+        LOGGER.info("getAllEmployees|page={},offset={}", page, offset);
 
-        if (pageNumber < 1) {
-            throw new InvalidPageNumberException(pageNumber, "Page number parameter cannot be less than 1");
+        if (page < 1) {
+            throw new InvalidPageNumberException(page, "'page' parameter cannot be less than 1");
         }
 
         if (offset < 1) {
-            throw new InvalidOffsetNumberException(offset, "Page number parameter cannot be less than 1");
+            throw new InvalidOffsetNumberException(offset, "'offset' parameter cannot be less than 1");
         }
 
-        List<EmployeeDto> employees = employeeService.getAllEmployees(pageNumber, offset);
+        List<EmployeeDto> employees = employeeService.getAllEmployees(page, offset);
         return ResponseEntity.ok(employees);
     }
 

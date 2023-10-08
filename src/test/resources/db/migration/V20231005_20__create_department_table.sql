@@ -1,0 +1,6 @@
+CREATE TABLE `DEPARTMENT`
+(
+    `ID`   int(11) NOT NULL AUTO_INCREMENT,
+    `NAME` varchar(30) DEFAULT NULL,
+    PRIMARY KEY (`ID`)
+)

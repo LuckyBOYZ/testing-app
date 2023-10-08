@@ -23,10 +23,10 @@ public class GetAllEmployeesRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<Employee> getAllEmployees(int pageNumber, int offset) {
+    public List<Employee> getAllEmployees(int page, int offset) {
         LOGGER.info("getAllEmployees");
         MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("offset", (pageNumber - 1) * offset);
+        params.addValue("offset", (page - 1) * offset);
         params.addValue("numOfRecords", offset);
         return jdbcTemplate.query(query, params, new DataClassRowMapper<>(Employee.class));
     }

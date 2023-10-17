@@ -1,12 +1,9 @@
-package com.sumalukasz.testing.model.dto;
-
-import com.sumalukasz.testing.model.entity.Employee;
+package com.sumalukasz.testing.model.request;
 
 import java.time.LocalDate;
 
-public final class EmployeeDto {
+public final class EmployeeRequest {
 
-    private final Long id;
     private final String name;
     private final String surname;
     private final String pesel;
@@ -14,30 +11,13 @@ public final class EmployeeDto {
     private final LocalDate dateOfBirth;
     private final Long departmentId;
 
-    private EmployeeDto(Long id, String name, String surname, String pesel, String phoneNumber, LocalDate dateOfBirth, Long departmentId) {
-        this.id = id;
+    public EmployeeRequest(String name, String surname, String pesel, String phoneNumber, LocalDate dateOfBirth, Long departmentId) {
         this.name = name;
         this.surname = surname;
         this.pesel = pesel;
         this.phoneNumber = phoneNumber;
         this.dateOfBirth = dateOfBirth;
         this.departmentId = departmentId;
-    }
-
-    public static EmployeeDto newEmployeeDto(Employee employee, boolean withId) {
-        return new EmployeeDto(
-                withId ? employee.id() : null,
-                employee.name(),
-                employee.surname(),
-                employee.pesel(),
-                employee.phoneNumber(),
-                employee.dateOfBirth(),
-                employee.departmentId()
-        );
-    }
-
-    public Long getId() {
-        return id;
     }
 
     public String getName() {

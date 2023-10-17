@@ -5,6 +5,7 @@ import com.tngtech.archunit.core.domain.JavaModifier;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.lang.syntax.elements.ClassesShouldConjunction;
 import com.tngtech.archunit.lang.syntax.elements.FieldsShouldConjunction;
+import com.tngtech.archunit.lang.syntax.elements.MethodsShouldConjunction;
 import com.tngtech.archunit.library.Architectures;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -13,8 +14,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RestController;
 
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields;
+import static com.tngtech.archunit.core.domain.properties.HasName.Predicates.nameEndingWith;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
 import static com.tngtech.archunit.library.Architectures.layeredArchitecture;
 
 class ArchitectureTest {
@@ -22,12 +23,14 @@ class ArchitectureTest {
     private static final JavaClasses PACKAGE_TO_TEST = new ClassFileImporter().importPackages("com.sumalukasz.testing");
     private static final Architectures.LayeredArchitecture LAYERED_ARCHITECTURE = layeredArchitecture()
             .consideringAllDependencies()
+            .layer("Constant").definedBy("..constant..")
             .layer("Controller").definedBy("..controller..")
             .layer("Exception").definedBy("..exception..")
             .layer("Filter").definedBy("..filter..")
             .layer("Model").definedBy("..model..")
             .layer("Repository").definedBy("..repository..")
-            .layer("Service").definedBy("..service..");
+            .layer("Service").definedBy("..service..")
+            .layer("Utility").definedBy("..utility..");
 
     @Test
     void shouldControllersBeInControllerPackageAndShouldNotBeAvailableAnywhereAndShouldContainServiceField() {
@@ -140,6 +143,17 @@ class ArchitectureTest {
     }
 
     @Test
+    void shouldRequestDtosBePublicAndShouldContainConstructorWithAllFieldsAndShouldHaveNoSetters() {
+        ClassesShouldConjunction requests = classes().that()
+                .resideInAPackage("..model.request..")
+                .should()
+                .bePublic()
+                .andShould()
+                .haveOnlyFinalFields();
+        requests.check(PACKAGE_TO_TEST);
+    }
+
+    @Test
     void shouldFiltersBeInFilterPackageAndShouldBeEndingWithFilter() {
         ClassesShouldConjunction filters = classes().that()
                 .resideInAPackage("..filter..")
@@ -157,11 +171,50 @@ class ArchitectureTest {
         ClassesShouldConjunction exceptions = classes().that()
                 .resideInAPackage("..exception..")
                 .and()
-                .haveNameMatching(".*Exception")
+                .haveSimpleNameEndingWith("Exception")
                 .should()
                 .bePublic()
                 .andShould()
                 .beAssignableTo(RuntimeException.class);
         exceptions.check(PACKAGE_TO_TEST);
+    }
+
+    @Test
+    void shouldUtilitiesBeInUtilityPackageAndShouldBeEndingWithUtils() {
+        ClassesShouldConjunction utilities = classes().that()
+                .resideInAPackage("..utility..")
+                .should()
+                .haveSimpleNameEndingWith("Utils")
+                .andShould()
+                .bePublic()
+                .andShould()
+                .haveModifier(JavaModifier.FINAL)
+                .andShould()
+                .haveOnlyPrivateConstructors();
+        utilities.check(PACKAGE_TO_TEST);
+    }
+
+    @Test
+    void shouldMethodsInUtilitiesBePublicAndStatic() {
+        MethodsShouldConjunction methodsInUtils = methods().that()
+                .areDeclaredInClassesThat(nameEndingWith("Utils"))
+                .should()
+                .bePublic()
+                .andShould()
+                .beStatic();
+        methodsInUtils.check(PACKAGE_TO_TEST);
+    }
+
+    @Test
+    void shouldConstantsBeInConstantPackageAndShouldBeEndingWithConstant() {
+        ClassesShouldConjunction constants = classes().that()
+                .resideInAPackage("..constant..")
+                .should()
+                .haveSimpleNameEndingWith("Constant")
+                .andShould()
+                .bePublic()
+                .andShould()
+                .beEnums();
+        constants.check(PACKAGE_TO_TEST);
     }
 }

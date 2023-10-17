@@ -2,14 +2,14 @@ package com.sumalukasz.testing.exception;
 
 public class InvalidOffsetNumberException extends RuntimeException {
 
-    private final int offset;
+    private final String offset;
 
-    public InvalidOffsetNumberException(int offset, String message) {
+    public InvalidOffsetNumberException(String offset, String message) {
         super(message);
         this.offset = offset;
     }
 
-    public int getOffset() {
+    public String getOffset() {
         return offset;
     }
 }

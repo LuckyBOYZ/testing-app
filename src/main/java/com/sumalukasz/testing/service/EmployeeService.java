@@ -1,7 +1,10 @@
 package com.sumalukasz.testing.service;
 
 import com.sumalukasz.testing.exception.InvalidDepartmentIdException;
+import com.sumalukasz.testing.exception.InvalidEmployeeIdException;
+import com.sumalukasz.testing.model.dto.AddressDto;
 import com.sumalukasz.testing.model.dto.EmployeeDto;
+import com.sumalukasz.testing.model.entity.Address;
 import com.sumalukasz.testing.model.entity.Department;
 import com.sumalukasz.testing.model.entity.Employee;
 import com.sumalukasz.testing.model.request.EmployeeRequest;
@@ -26,9 +29,10 @@ public class EmployeeService {
     private final DeleteAddressRepository deleteAddressRepository;
     private final GetDepartmentByIdRepository getDepartmentByIdRepository;
     private final UpdateEmployeeRepository updateEmployeeRepository;
+    private final GetEmployeesAddressRepository getEmployeesAddressRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeService.class);
 
-    public EmployeeService(GetAllEmployeesRepository getAllEmployeesRepository, GetEmployeeByIdRepository getEmployeeByIdRepository, InsertEmployeeRepository insertEmployeeRepository, DeleteEmployeeRepository deleteEmployeeRepository, DeleteAddressRepository deleteAddressRepository, GetDepartmentByIdRepository getDepartmentByIdRepository, UpdateEmployeeRepository updateEmployeeRepository) {
+    public EmployeeService(GetAllEmployeesRepository getAllEmployeesRepository, GetEmployeeByIdRepository getEmployeeByIdRepository, InsertEmployeeRepository insertEmployeeRepository, DeleteEmployeeRepository deleteEmployeeRepository, DeleteAddressRepository deleteAddressRepository, GetDepartmentByIdRepository getDepartmentByIdRepository, UpdateEmployeeRepository updateEmployeeRepository, GetEmployeesAddressRepository getEmployeesAddressRepository) {
         this.getAllEmployeesRepository = getAllEmployeesRepository;
         this.getEmployeeByIdRepository = getEmployeeByIdRepository;
         this.insertEmployeeRepository = insertEmployeeRepository;
@@ -36,6 +40,7 @@ public class EmployeeService {
         this.deleteAddressRepository = deleteAddressRepository;
         this.getDepartmentByIdRepository = getDepartmentByIdRepository;
         this.updateEmployeeRepository = updateEmployeeRepository;
+        this.getEmployeesAddressRepository = getEmployeesAddressRepository;
     }
 
     public List<EmployeeDto> getAllEmployees(int page, int offset) {
@@ -80,5 +85,14 @@ public class EmployeeService {
         updateEmployeeRepository.updateEmployee(requestBody, id);
         Employee result = getEmployeeByIdRepository.getEmployeeById(id);
         return EmployeeDto.newEmployeeDto(result, false);
+    }
+
+    public AddressDto getEmployeesAddressById(long id) {
+        LOGGER.info("getEmployeesAddress");
+        Address address = getEmployeesAddressRepository.getEmployeesAddressById(id);
+        if (address == null) {
+            throw new InvalidEmployeeIdException(String.valueOf(id), "No employee for given id");
+        }
+        return AddressDto.newAddressDto(address);
     }
 }

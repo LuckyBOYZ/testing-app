@@ -49,8 +49,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.badRequest().body(errorBody);
     }
 
-    @ExceptionHandler({InvalidParameterValueException.class, TooHighNumberValueException.class})
-    public ResponseEntity<Object> handleInvalidParameterValueExceptionAndTooHighNumberValueException(ExceptionWithValueField ex) {
+    @ExceptionHandler(InvalidParameterValueException.class)
+    public ResponseEntity<Object> handleInvalidParameterValueExceptionAndTooHighNumberValueException(InvalidParameterValueException ex) {
+        Map<String, Object> errorBody = createErrorBody(ex.getMessage(), ex.getValue());
+        return ResponseEntity.badRequest().body(errorBody);
+    }
+
+    @ExceptionHandler(TooHighNumberValueException.class)
+    public ResponseEntity<Object> handleInvalidParameterValueExceptionAndTooHighNumberValueException(TooHighNumberValueException ex) {
         Map<String, Object> errorBody = createErrorBody(ex.getMessage(), ex.getValue());
         return ResponseEntity.badRequest().body(errorBody);
     }

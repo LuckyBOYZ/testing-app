@@ -4,6 +4,7 @@ import com.sumalukasz.testing.constant.NumberPropertyNameConstant;
 import com.sumalukasz.testing.exception.InvalidEmployeeIdException;
 import com.sumalukasz.testing.exception.InvalidOffsetNumberException;
 import com.sumalukasz.testing.exception.InvalidPageNumberException;
+import com.sumalukasz.testing.model.dto.AddressDto;
 import com.sumalukasz.testing.model.dto.EmployeeDto;
 import com.sumalukasz.testing.model.request.EmployeeRequest;
 import com.sumalukasz.testing.service.EmployeeService;
@@ -63,7 +64,7 @@ public class EmployeeController {
         return ResponseEntity.ok(employee);
     }
 
-    @PostMapping(value = "/", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<EmployeeDto> insertEmployee(@RequestBody EmployeeRequest employeeRequest,
                                                       HttpServletRequest request) {
         LOGGER.info("insertEmployee|employeeRequest={}", employeeRequest);
@@ -84,7 +85,7 @@ public class EmployeeController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping(value = "/{id}")
+    @PatchMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<EmployeeDto> updateEmployee(@RequestBody Map<String, Object> requestBody,
                                          @PathVariable(value = "id") String idString) {
         LOGGER.info("updateEmployee|requestBody={},id={}", requestBody, idString);
@@ -99,6 +100,17 @@ public class EmployeeController {
         }
         EmployeeDto updatedEmployee = employeeService.updateEmployee(requestBody, id);
         return ResponseEntity.ok(updatedEmployee);
+    }
+
+    @GetMapping(value = "/{id}/address", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity getEmployeesAddressById(@PathVariable("id") String idString) {
+        LOGGER.info("getEmployeesAddress|id={}", idString);
+        long id = ConvertStringToLongUtils.convertStringToLong(idString, NumberPropertyNameConstant.ID);
+        if (id < 1) {
+            throw new InvalidEmployeeIdException(idString, "'id' path variable cannot be less than 1");
+        }
+        AddressDto addressDto = employeeService.getEmployeesAddressById(id);
+        return ResponseEntity.ok(addressDto);
     }
 
 }

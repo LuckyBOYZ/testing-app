@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings("DuplicatedCode")
 public final class ValidateEmployeeRequestBodyUtils {
 
     private ValidateEmployeeRequestBodyUtils() {
@@ -27,9 +28,9 @@ public final class ValidateEmployeeRequestBodyUtils {
         }
     }
 
-    public static void validateRequestBodyByGivenMap(Map<String, Object> employeeRequest) {
+    public static void validateRequestBodyByGivenMap(Map<String, Object> employeeRequestBody) {
         Map<String, Object> invalidFields = new HashMap<>();
-        for (Map.Entry<String, Object> employeeProperty : employeeRequest.entrySet()) {
+        for (Map.Entry<String, Object> employeeProperty : employeeRequestBody.entrySet()) {
             String key = employeeProperty.getKey();
             Object value = employeeProperty.getValue();
             EmployeeColumnViolationConstant violationsConstant;

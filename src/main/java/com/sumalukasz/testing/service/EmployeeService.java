@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class EmployeeService {
@@ -25,22 +26,26 @@ public class EmployeeService {
     private final GetAllEmployeesRepository getAllEmployeesRepository;
     private final GetEmployeeByIdRepository getEmployeeByIdRepository;
     private final InsertEmployeeRepository insertEmployeeRepository;
-    private final DeleteEmployeeRepository deleteEmployeeRepository;
+    private final DeleteEmployeeByIdRepository deleteEmployeeByIdRepository;
     private final DeleteAddressRepository deleteAddressRepository;
     private final GetDepartmentByIdRepository getDepartmentByIdRepository;
     private final UpdateEmployeeRepository updateEmployeeRepository;
-    private final GetEmployeesAddressRepository getEmployeesAddressRepository;
+    private final GetEmployeesAddressByEmployeeIdRepository getEmployeesAddressByEmployeeIdRepository;
+    private final InsertEmployeeIdMappingRepository insertEmployeeIdMappingRepository;
+    private final DeleteEmployeeIdMappingByEmployeeIdRepository deleteEmployeeIdMappingByEmployeeIdRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeService.class);
 
-    public EmployeeService(GetAllEmployeesRepository getAllEmployeesRepository, GetEmployeeByIdRepository getEmployeeByIdRepository, InsertEmployeeRepository insertEmployeeRepository, DeleteEmployeeRepository deleteEmployeeRepository, DeleteAddressRepository deleteAddressRepository, GetDepartmentByIdRepository getDepartmentByIdRepository, UpdateEmployeeRepository updateEmployeeRepository, GetEmployeesAddressRepository getEmployeesAddressRepository) {
+    public EmployeeService(GetAllEmployeesRepository getAllEmployeesRepository, GetEmployeeByIdRepository getEmployeeByIdRepository, InsertEmployeeRepository insertEmployeeRepository, DeleteEmployeeByIdRepository deleteEmployeeByIdRepository, DeleteAddressRepository deleteAddressRepository, GetDepartmentByIdRepository getDepartmentByIdRepository, UpdateEmployeeRepository updateEmployeeRepository, GetEmployeesAddressByEmployeeIdRepository getEmployeesAddressByEmployeeIdRepository, InsertEmployeeIdMappingRepository insertEmployeeIdMappingRepository, DeleteEmployeeIdMappingByEmployeeIdRepository deleteEmployeeIdMappingByEmployeeIdRepository) {
         this.getAllEmployeesRepository = getAllEmployeesRepository;
         this.getEmployeeByIdRepository = getEmployeeByIdRepository;
         this.insertEmployeeRepository = insertEmployeeRepository;
-        this.deleteEmployeeRepository = deleteEmployeeRepository;
+        this.deleteEmployeeByIdRepository = deleteEmployeeByIdRepository;
         this.deleteAddressRepository = deleteAddressRepository;
         this.getDepartmentByIdRepository = getDepartmentByIdRepository;
         this.updateEmployeeRepository = updateEmployeeRepository;
-        this.getEmployeesAddressRepository = getEmployeesAddressRepository;
+        this.getEmployeesAddressByEmployeeIdRepository = getEmployeesAddressByEmployeeIdRepository;
+        this.insertEmployeeIdMappingRepository = insertEmployeeIdMappingRepository;
+        this.deleteEmployeeIdMappingByEmployeeIdRepository = deleteEmployeeIdMappingByEmployeeIdRepository;
     }
 
     public List<EmployeeDto> getAllEmployees(int page, int offset) {
@@ -61,22 +66,24 @@ public class EmployeeService {
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public long insertEmployee(EmployeeRequest employeeRequest) {
+    public String insertEmployee(EmployeeRequest employeeRequest) {
         LOGGER.info("insertEmployee");
         if (employeeRequest.getDepartmentId() != null) {
             Department department = getDepartmentByIdRepository.getDepartmentById(employeeRequest.getDepartmentId());
             if (department == null) {
-                throw new InvalidDepartmentIdException(String.valueOf(employeeRequest.getDepartmentId()), "No department for given id");
+                throw new InvalidDepartmentIdException(String.valueOf(employeeRequest.getDepartmentId()), "No department for given department id");
             }
         }
-        return insertEmployeeRepository.insertEmployee(employeeRequest);
+        long employeeId = insertEmployeeRepository.insertEmployee(employeeRequest);
+        return insertEmployeeIdMappingRepository.insertEmployeeIdMapping(employeeId, UUID.randomUUID().toString());
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public void deleteEmployee(long id) {
-        LOGGER.info("deleteEmployee");
+    public void deleteEmployeeById(long id) {
+        LOGGER.info("deleteEmployeeById");
         deleteAddressRepository.deleteAddressByEmployeeId(id);
-        deleteEmployeeRepository.deleteEmployee(id);
+        deleteEmployeeByIdRepository.deleteEmployeeById(id);
+        deleteEmployeeIdMappingByEmployeeIdRepository.deleteEmployeeIdMappingByEmployeeId(id);
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
@@ -87,11 +94,11 @@ public class EmployeeService {
         return EmployeeDto.newEmployeeDto(result, false);
     }
 
-    public AddressDto getEmployeesAddressById(long id) {
-        LOGGER.info("getEmployeesAddress");
-        Address address = getEmployeesAddressRepository.getEmployeesAddressById(id);
+    public AddressDto getEmployeesAddressByEmployeeId(long employeeId) {
+        LOGGER.info("getEmployeesAddressByEmployeeId");
+        Address address = getEmployeesAddressByEmployeeIdRepository.getEmployeesAddressByEmployeeId(employeeId);
         if (address == null) {
-            throw new InvalidEmployeeIdException(String.valueOf(id), "No employee for given id");
+            throw new InvalidEmployeeIdException(String.valueOf(employeeId), "No employee for given employee id");
         }
         return AddressDto.newAddressDto(address);
     }

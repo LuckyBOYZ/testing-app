@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 public final class EmployeeDto {
 
-    private final Long id;
+    private final String uuid;
     private final String name;
     private final String surname;
     private final String pesel;
@@ -14,8 +14,8 @@ public final class EmployeeDto {
     private final LocalDate dateOfBirth;
     private final Long departmentId;
 
-    private EmployeeDto(Long id, String name, String surname, String pesel, String phoneNumber, LocalDate dateOfBirth, Long departmentId) {
-        this.id = id;
+    private EmployeeDto(String uuid, String name, String surname, String pesel, String phoneNumber, LocalDate dateOfBirth, Long departmentId) {
+        this.uuid = uuid;
         this.name = name;
         this.surname = surname;
         this.pesel = pesel;
@@ -26,7 +26,7 @@ public final class EmployeeDto {
 
     public static EmployeeDto newEmployeeDto(Employee employee, boolean withId) {
         return new EmployeeDto(
-                withId ? employee.id() : null,
+                withId ? employee.uuid() : null,
                 employee.name(),
                 employee.surname(),
                 employee.pesel(),
@@ -36,8 +36,8 @@ public final class EmployeeDto {
         );
     }
 
-    public Long getId() {
-        return id;
+    public String getUuid() {
+        return uuid;
     }
 
     public String getName() {

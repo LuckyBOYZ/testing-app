@@ -22,7 +22,7 @@ public final class ValidateEmployeeRequestBodyUtils {
         checkViolationOnVarcharColumnType(EmployeeColumnViolationConstant.PESEL, employeeRequest.getPesel(), invalidFields);
         checkViolationOnVarcharColumnType(EmployeeColumnViolationConstant.PHONE_NUMBER, employeeRequest.getPhoneNumber(), invalidFields);
         checkViolationOnDateColumnType(EmployeeColumnViolationConstant.DATE_OF_BIRTH, employeeRequest.getDateOfBirth(), invalidFields);
-        checkViolationOnIntColumnType(EmployeeColumnViolationConstant.DEPARTMENT_ID, employeeRequest.getDepartmentId(), invalidFields);
+        checkViolationOnNumberColumnType(EmployeeColumnViolationConstant.DEPARTMENT_ID, employeeRequest.getDepartmentId(), invalidFields);
         if (!invalidFields.isEmpty()) {
             throw new InvalidRequestBodyException(invalidFields, "Request body has invalid fields");
         }
@@ -35,7 +35,8 @@ public final class ValidateEmployeeRequestBodyUtils {
             Object value = employeeProperty.getValue();
             EmployeeColumnViolationConstant violationsConstant;
             try {
-                violationsConstant = EmployeeColumnViolationConstant.valueOf(key.toUpperCase());
+                String snakeUppercaseKey = ConvertingCamelCaseToSnakeUpperCaseUtils.convertCamelCaseStringToSnakeUppercase(key);
+                violationsConstant = EmployeeColumnViolationConstant.valueOf(snakeUppercaseKey);
             } catch (IllegalArgumentException ignore) {
                 invalidFields.put(key, "Unknown property name '%s'".formatted(key));
                 continue;
@@ -43,7 +44,7 @@ public final class ValidateEmployeeRequestBodyUtils {
             switch (value) {
                 case String val -> checkViolationOnVarcharColumnType(violationsConstant, val, invalidFields);
                 case LocalDate val -> checkViolationOnDateColumnType(violationsConstant, val, invalidFields);
-                case Long val -> checkViolationOnIntColumnType(violationsConstant, val, invalidFields);
+                case Number val -> checkViolationOnNumberColumnType(violationsConstant, val, invalidFields);
                 default -> invalidFields.put(key, "Unknown property type '%s'".formatted(key));
             }
         }
@@ -72,13 +73,13 @@ public final class ValidateEmployeeRequestBodyUtils {
         }
     }
 
-    private static void checkViolationOnIntColumnType(EmployeeColumnViolationConstant violationsConstant, Long value,
-                                                      Map<String, Object> invalidFields) {
+    private static void checkViolationOnNumberColumnType(EmployeeColumnViolationConstant violationsConstant, Number value,
+                                                         Map<String, Object> invalidFields) {
         String fieldName = violationsConstant.getFieldName();
         Integer columnLength = violationsConstant.getLength();
         if (!violationsConstant.canBeNull() && value == null) {
             invalidFields.put(fieldName, "'%s' cannot be null".formatted(fieldName));
-        } else if (columnLength != null && (value != null && CheckDigitsINumberUtils.getNumberOfDigitsInNumber(value) > columnLength)) {
+        } else if (columnLength != null && (value != null && CheckDigitsINumberUtils.getNumberOfDigitsInNumber(value.longValue()) > columnLength)) {
             invalidFields.put(fieldName, "'%s' has invalid length. Maximal length for this property is %s"
                     .formatted(fieldName, columnLength));
         }

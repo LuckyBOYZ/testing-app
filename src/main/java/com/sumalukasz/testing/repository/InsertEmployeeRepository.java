@@ -14,7 +14,7 @@ public class InsertEmployeeRepository {
     private final SimpleJdbcInsert simpleJdbcInsert;
     private static final Logger LOGGER = LoggerFactory.getLogger(InsertEmployeeRepository.class);
 
-    public InsertEmployeeRepository(@Qualifier("employeeSimpleJdbcInsert") SimpleJdbcInsert simpleJdbcInsert) {
+    public InsertEmployeeRepository(@Qualifier("employeeSimpleJdbcTemplate") SimpleJdbcInsert simpleJdbcInsert) {
         this.simpleJdbcInsert = simpleJdbcInsert;
     }
 

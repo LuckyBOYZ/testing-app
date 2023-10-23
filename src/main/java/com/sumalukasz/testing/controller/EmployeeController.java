@@ -10,8 +10,8 @@ import com.sumalukasz.testing.model.request.EmployeeRequest;
 import com.sumalukasz.testing.service.EmployeeService;
 import com.sumalukasz.testing.utility.ConvertStringToIntegerUtils;
 import com.sumalukasz.testing.utility.ConvertStringToLongUtils;
-import com.sumalukasz.testing.utility.ValidateValuesUtils;
 import com.sumalukasz.testing.utility.ValidateEmployeeRequestBodyUtils;
+import com.sumalukasz.testing.utility.ValidateValuesUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,25 +69,25 @@ public class EmployeeController {
                                                       HttpServletRequest request) {
         LOGGER.info("insertEmployee|employeeRequest={}", employeeRequest);
         ValidateEmployeeRequestBodyUtils.validateRequestBody(employeeRequest);
-        long newEmployeeId = employeeService.insertEmployee(employeeRequest);
+        String uuid = employeeService.insertEmployee(employeeRequest);
         return ResponseEntity
-                .created(URI.create(request.getRequestURL().append(newEmployeeId).toString())).build();
+                .created(URI.create(request.getRequestURL().append(uuid).toString())).build();
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity deleteEmployee(@PathVariable(value = "id") String idString) {
-        LOGGER.info("deleteEmployee|id={}", idString);
+    public ResponseEntity deleteEmployeeById(@PathVariable(value = "id") String idString) {
+        LOGGER.info("deleteEmployeeById|id={}", idString);
         long id = ConvertStringToLongUtils.convertStringToLong(idString, NumberPropertyNameConstant.ID);
         if (id < 1) {
             throw new InvalidEmployeeIdException(idString, "'id' path variable cannot be less than 1");
         }
-        employeeService.deleteEmployee(id);
+        employeeService.deleteEmployeeById(id);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<EmployeeDto> updateEmployee(@RequestBody Map<String, Object> requestBody,
-                                         @PathVariable(value = "id") String idString) {
+                                                      @PathVariable(value = "id") String idString) {
         LOGGER.info("updateEmployee|requestBody={},id={}", requestBody, idString);
         boolean areValuesNull = ValidateValuesUtils.areAllValuesInMapNull(requestBody);
         if (areValuesNull) {
@@ -103,13 +103,13 @@ public class EmployeeController {
     }
 
     @GetMapping(value = "/{id}/address", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getEmployeesAddressById(@PathVariable("id") String idString) {
-        LOGGER.info("getEmployeesAddress|id={}", idString);
+    public ResponseEntity getEmployeesAddressByEmployeeId(@PathVariable("id") String idString) {
+        LOGGER.info("getEmployeesAddressByEmployeeId|id={}", idString);
         long id = ConvertStringToLongUtils.convertStringToLong(idString, NumberPropertyNameConstant.ID);
         if (id < 1) {
             throw new InvalidEmployeeIdException(idString, "'id' path variable cannot be less than 1");
         }
-        AddressDto addressDto = employeeService.getEmployeesAddressById(id);
+        AddressDto addressDto = employeeService.getEmployeesAddressByEmployeeId(id);
         return ResponseEntity.ok(addressDto);
     }
 

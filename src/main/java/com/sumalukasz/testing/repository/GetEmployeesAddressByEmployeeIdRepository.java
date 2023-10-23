@@ -11,21 +11,21 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class GetEmployeesAddressRepository {
+public class GetEmployeesAddressByEmployeeIdRepository {
 
     @Value("${get.employees.address.by.id}")
     private String query;
     private final NamedParameterJdbcTemplate jdbcTemplate;
-    private static final Logger LOGGER = LoggerFactory.getLogger(GetEmployeesAddressRepository.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GetEmployeesAddressByEmployeeIdRepository.class);
 
-    public GetEmployeesAddressRepository(NamedParameterJdbcTemplate jdbcTemplate) {
+    public GetEmployeesAddressByEmployeeIdRepository(NamedParameterJdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Address getEmployeesAddressById(long id) {
-        LOGGER.info("getEmployeesAddressById");
+    public Address getEmployeesAddressByEmployeeId(long employeeId) {
+        LOGGER.info("getEmployeesAddressByEmployeeId");
         MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("employeeId", id);
+        params.addValue("employeeId", employeeId);
         try {
             return jdbcTemplate.queryForObject(query, params, new DataClassRowMapper<>(Address.class));
         } catch (EmptyResultDataAccessException ignore) {

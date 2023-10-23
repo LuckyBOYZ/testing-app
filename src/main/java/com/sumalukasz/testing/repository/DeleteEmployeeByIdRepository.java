@@ -8,19 +8,19 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class DeleteEmployeeRepository {
+public class DeleteEmployeeByIdRepository {
 
-    @Value("${delete.employee}")
+    @Value("${delete.employee.by.id}")
     private String query;
     private final NamedParameterJdbcTemplate jdbcTemplate;
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeleteEmployeeRepository.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeleteEmployeeByIdRepository.class);
 
-    public DeleteEmployeeRepository(NamedParameterJdbcTemplate jdbcTemplate) {
+    public DeleteEmployeeByIdRepository(NamedParameterJdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void deleteEmployee(long id) {
-        LOGGER.info("deleteEmployee");
+    public void deleteEmployeeById(long id) {
+        LOGGER.info("deleteEmployeeById");
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);
         jdbcTemplate.update(query, params);

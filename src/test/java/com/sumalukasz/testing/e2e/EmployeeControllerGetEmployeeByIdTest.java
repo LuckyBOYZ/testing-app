@@ -26,7 +26,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+@SuppressWarnings({"SpringJavaInjectionPointsAutowiringInspection", "UnnecessaryUnicodeEscape"})
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "spring.profiles.active=test")
 @DisplayName("Testing 'getEmployeeById' Endpoint")
 @Tag("Controller")
@@ -61,7 +61,7 @@ class EmployeeControllerGetEmployeeByIdTest extends IntegrationTest {
 
         //then
         assertEquals(HttpStatus.OK.value(), res.statusCode());
-        assertEquals(3, employeeDto.getId());
+        assertEquals("adcdc4f2-896a-4fcc-b2cc-0903f1acdc03", employeeDto.getUuid());
         assertEquals("Tadeusz", employeeDto.getName());
         assertEquals("Komornik\u00f3w", employeeDto.getSurname());
         assertEquals("76101720170", employeeDto.getPesel());

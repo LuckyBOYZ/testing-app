@@ -78,7 +78,7 @@ class EmployeeControllerInsertEmployeeTest extends IntegrationTest {
         assertEquals(HttpStatus.CREATED.value(), response.statusCode());
         assertEquals("", response.body());
         String[] split = linkToNewValue.split("/");
-        assertEquals(Long.parseLong(split[split.length - 1]), employee.id());
+        assertEquals(Long.parseLong(split[split.length - 1]), employee.uuid());
         assertEquals("John", employee.name());
         assertEquals("Week", employee.surname());
         assertEquals("12345678910", employee.pesel());
@@ -116,7 +116,7 @@ class EmployeeControllerInsertEmployeeTest extends IntegrationTest {
         assertEquals(HttpStatus.CREATED.value(), response.statusCode());
         assertEquals("", response.body());
         String[] split = linkToNewValue.split("/");
-        assertEquals(Long.parseLong(split[split.length - 1]), employee.id());
+        assertEquals(Long.parseLong(split[split.length - 1]), employee.uuid());
         assertEquals("John", employee.name());
         assertEquals("Week", employee.surname());
         assertEquals("12345678910", employee.pesel());
@@ -204,7 +204,7 @@ class EmployeeControllerInsertEmployeeTest extends IntegrationTest {
 
         //then
         assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode());
-        assertEquals("No department for given id", errorMessage);
+        assertEquals("No department for given department id", errorMessage);
         assertEquals("100", departmentId);
     }
 
@@ -277,7 +277,7 @@ class EmployeeControllerInsertEmployeeTest extends IntegrationTest {
         assertEquals(HttpStatus.CREATED.value(), response.statusCode());
         assertEquals("", response.body());
         String[] split = linkToNewValue.split("/");
-        assertEquals(Long.parseLong(split[split.length - 1]), employee.id());
+        assertEquals(Long.parseLong(split[split.length - 1]), employee.uuid());
         assertEquals("ABCDEFGHI", employee.name());
         assertEquals("ABCDEGHI", employee.surname());
         assertEquals("123456789", employee.pesel());

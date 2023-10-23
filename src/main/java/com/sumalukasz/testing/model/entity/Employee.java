@@ -3,7 +3,7 @@ package com.sumalukasz.testing.model.entity;
 import java.time.LocalDate;
 
 public record Employee(
-        Long id,
+        String uuid,
         String name,
         String surname,
         String pesel,

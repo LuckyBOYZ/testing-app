@@ -1,5 +1,6 @@
 package com.sumalukasz.testing.repository;
 
+import com.sumalukasz.testing.utility.ConvertingCamelCaseToSnakeUpperCaseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -37,7 +38,8 @@ public class UpdateEmployeeRepository {
             Object value = fieldToUpdate.getValue();
             String keyLowerCase = key.toLowerCase();
             String queryStatement = "%s = :%s,";
-            queryBuilder.append(queryStatement.formatted(key, keyLowerCase));
+            String sneakUppercaseKey = ConvertingCamelCaseToSnakeUpperCaseUtils.convertCamelCaseStringToSnakeUppercase(key);
+            queryBuilder.append(queryStatement.formatted(sneakUppercaseKey, keyLowerCase));
             params.addValue(keyLowerCase, value);
         }
     }

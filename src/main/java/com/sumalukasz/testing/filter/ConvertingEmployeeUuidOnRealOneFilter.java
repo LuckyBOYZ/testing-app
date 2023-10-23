@@ -1,4 +1,4 @@
-package com.sumalukasz.testing.interceptor;
+package com.sumalukasz.testing.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sumalukasz.testing.exception.InvalidUuidException;

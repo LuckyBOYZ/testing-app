@@ -78,6 +78,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.badRequest().body(errorBody);
     }
 
+    @ExceptionHandler(InvalidAmountOfAddedRowsToDatabaseException.class)
+    public ResponseEntity<Object> handleInvalidAmountOfAddedRowsToDatabaseException(InvalidAmountOfAddedRowsToDatabaseException ex) {
+        Map<String, Object> errorBody = createErrorBody(ex.getMessage(), ex.getRowsNum());
+        return ResponseEntity.internalServerError().body(errorBody);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleException(Exception ex) {
         Map<String, Object> errorBody = createErrorBody(ex.getMessage(), null);

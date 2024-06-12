@@ -8,6 +8,8 @@ import com.tngtech.archunit.lang.syntax.elements.FieldsShouldConjunction;
 import com.tngtech.archunit.lang.syntax.elements.MethodsShouldConjunction;
 import com.tngtech.archunit.library.Architectures;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
@@ -23,6 +25,7 @@ class ArchitectureTest {
     private static final JavaClasses PACKAGE_TO_TEST = new ClassFileImporter().importPackages("com.sumalukasz.testing");
     private static final Architectures.LayeredArchitecture LAYERED_ARCHITECTURE = layeredArchitecture()
             .consideringAllDependencies()
+            .layer("Configuration").definedBy("..configuration..")
             .layer("Constant").definedBy("..constant..")
             .layer("Controller").definedBy("..controller..")
             .layer("Exception").definedBy("..exception..")
@@ -31,6 +34,27 @@ class ArchitectureTest {
             .layer("Repository").definedBy("..repository..")
             .layer("Service").definedBy("..service..")
             .layer("Utility").definedBy("..utility..");
+
+    @Test
+    void shouldConfigurationsBeInConfigurationPackageAndShouldBeEndingWithConfigurationAndShouldBeAnnotatedConfigurationAnnotation() {
+        ClassesShouldConjunction exceptions = classes().that()
+                .resideInAPackage("..configuration..")
+                .and()
+                .haveSimpleNameEndingWith("Configuration")
+                .should()
+                .bePublic()
+                .andShould()
+                .beAnnotatedWith(Configuration.class);
+        exceptions.check(PACKAGE_TO_TEST);
+
+        MethodsShouldConjunction methodsInUtils = methods().that()
+                .areDeclaredInClassesThat(nameEndingWith("Configuration"))
+                .should()
+                .bePackagePrivate()
+                .andShould()
+                .beAnnotatedWith(Bean.class);
+        methodsInUtils.check(PACKAGE_TO_TEST);
+    }
 
     @Test
     void shouldControllersBeInControllerPackageAndShouldNotBeAvailableAnywhereAndShouldContainServiceField() {
@@ -80,7 +104,10 @@ class ArchitectureTest {
                 .notBeStatic()
                 .andShould()
                 .beDeclaredInClassesThat()
-                .areAnnotatedWith(Service.class);
+                .areAnnotatedWith(Service.class)
+                .orShould()
+                .beDeclaredInClassesThat()
+                .haveSimpleNameEndingWith("Filter");
         fieldsInService.check(PACKAGE_TO_TEST);
 
         Architectures.LayeredArchitecture serviceLayer = LAYERED_ARCHITECTURE
@@ -108,12 +135,15 @@ class ArchitectureTest {
                 .notBeStatic()
                 .andShould()
                 .beDeclaredInClassesThat()
-                .areAnnotatedWith(Repository.class);
+                .areAnnotatedWith(Repository.class)
+                .orShould()
+                .beDeclaredInClassesThat()
+                .haveSimpleNameEndingWith("Test");
 
         fieldsInRepository.check(PACKAGE_TO_TEST);
 
         Architectures.LayeredArchitecture repositoryLayer = LAYERED_ARCHITECTURE
-                .whereLayer("Repository").mayOnlyBeAccessedByLayers("Service");
+                .whereLayer("Repository").mayOnlyBeAccessedByLayers("Service", "Filter");
         repositoryLayer.check(PACKAGE_TO_TEST);
 
     }
@@ -200,6 +230,8 @@ class ArchitectureTest {
                 .areDeclaredInClassesThat(nameEndingWith("Utils"))
                 .should()
                 .bePublic()
+                .orShould()
+                .bePrivate()
                 .andShould()
                 .beStatic();
         methodsInUtils.check(PACKAGE_TO_TEST);

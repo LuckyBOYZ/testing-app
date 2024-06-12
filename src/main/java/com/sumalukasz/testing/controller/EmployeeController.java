@@ -102,7 +102,7 @@ public class EmployeeController {
         return ResponseEntity.ok(updatedEmployee);
     }
 
-    @GetMapping(value = "/{id}/address", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{id}/addresses", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getEmployeesAddressByEmployeeId(@PathVariable("id") String idString) {
         LOGGER.info("getEmployeesAddressByEmployeeId|id={}", idString);
         long id = ConvertStringToLongUtils.convertStringToLong(idString, NumberPropertyNameConstant.ID);

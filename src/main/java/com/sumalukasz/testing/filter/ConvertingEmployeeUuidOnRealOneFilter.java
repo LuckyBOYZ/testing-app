@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 @Component
 public class ConvertingEmployeeUuidOnRealOneFilter extends OncePerRequestFilter {
 
-    private static final Pattern URL_PATTERN = Pattern.compile("^/employees/(?<uuid>[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})(?:/address)?$");
+    private static final Pattern URL_PATTERN = Pattern.compile("^/employees/(?<uuid>[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})(?:/addresses)?$");
     private static final String UUID_REGEX = "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}";
     private static final Logger LOGGER = LoggerFactory.getLogger(ConvertingEmployeeUuidOnRealOneFilter.class);
     private final GetEmployeeIdByUuidRepository getEmployeeIdByUuidRepository;

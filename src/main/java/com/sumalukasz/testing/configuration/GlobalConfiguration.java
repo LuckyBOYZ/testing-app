@@ -15,6 +15,7 @@ public class GlobalConfiguration {
 
     @Bean("employeeIdMappingSimpleJdbcTemplate")
     SimpleJdbcInsert employeeIdMappingSimpleJdbcTemplate(JdbcTemplate jdbcTemplate) {
-        return new SimpleJdbcInsert(jdbcTemplate).withTableName("EMPLOYEE_ID_MAPPING").usingGeneratedKeyColumns("UUID");
+        return new SimpleJdbcInsert(jdbcTemplate).withTableName("EMPLOYEE_ID_MAPPING")
+                .usingColumns("EMPLOYEE_ID", "UUID");
     }
 }

@@ -15,9 +15,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import java.io.IOException;
 import java.net.URI;
@@ -38,6 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 @Import(TestBeansConfiguration.class)
 class EmployeeControllerInsertEmployeeTest extends IntegrationTest {
 
+    private static final String GET_EMPLOYEE_ID_FROM_EMPLOYEE_ID_MAPPING_BY_UUID = "SELECT EMPLOYEE_ID FROM EMPLOYEE_ID_MAPPING WHERE UUID = :uuid";
     private static final String BASIC_URL = "http://localhost:%s/employees/";
 
     @LocalServerPort
@@ -48,6 +52,9 @@ class EmployeeControllerInsertEmployeeTest extends IntegrationTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private NamedParameterJdbcTemplate jdbcTemplate;
 
     @Test
     @ClearDatabase
@@ -73,18 +80,20 @@ class EmployeeControllerInsertEmployeeTest extends IntegrationTest {
                 .build();
         HttpResponse<String> newEmployee = httpClient.send(secRequest, HttpResponse.BodyHandlers.ofString());
         Employee employee = objectMapper.readValue(newEmployee.body(), Employee.class);
+        long employeeId = getEmployeeIdFromEmployeeIdMappingByUuid(employee.uuid());
 
         //then
         assertEquals(HttpStatus.CREATED.value(), response.statusCode());
         assertEquals("", response.body());
         String[] split = linkToNewValue.split("/");
-        assertEquals(Long.parseLong(split[split.length - 1]), employee.uuid());
+        assertEquals(split[split.length - 1], employee.uuid());
         assertEquals("John", employee.name());
         assertEquals("Week", employee.surname());
         assertEquals("12345678910", employee.pesel());
         assertEquals("123 456 789", employee.phoneNumber());
         assertEquals("2000-05-20", employee.dateOfBirth().toString());
         assertNull(employee.departmentId());
+        assertEquals(156, employeeId);
     }
 
     @Test
@@ -111,18 +120,20 @@ class EmployeeControllerInsertEmployeeTest extends IntegrationTest {
                 .build();
         HttpResponse<String> newEmployee = httpClient.send(secRequest, HttpResponse.BodyHandlers.ofString());
         Employee employee = objectMapper.readValue(newEmployee.body(), Employee.class);
+        long employeeId = getEmployeeIdFromEmployeeIdMappingByUuid(employee.uuid());
 
         //then
         assertEquals(HttpStatus.CREATED.value(), response.statusCode());
         assertEquals("", response.body());
         String[] split = linkToNewValue.split("/");
-        assertEquals(Long.parseLong(split[split.length - 1]), employee.uuid());
+        assertEquals(split[split.length - 1], employee.uuid());
         assertEquals("John", employee.name());
         assertEquals("Week", employee.surname());
         assertEquals("12345678910", employee.pesel());
         assertEquals("123 456 789", employee.phoneNumber());
         assertEquals("2000-05-20", employee.dateOfBirth().toString());
         assertEquals(2L, employee.departmentId());
+        assertEquals(156, employeeId);
     }
 
     @Test
@@ -272,18 +283,20 @@ class EmployeeControllerInsertEmployeeTest extends IntegrationTest {
                 .build();
         HttpResponse<String> newEmployee = httpClient.send(secRequest, HttpResponse.BodyHandlers.ofString());
         Employee employee = objectMapper.readValue(newEmployee.body(), Employee.class);
+        long employeeId = getEmployeeIdFromEmployeeIdMappingByUuid(employee.uuid());
 
         //then
         assertEquals(HttpStatus.CREATED.value(), response.statusCode());
         assertEquals("", response.body());
         String[] split = linkToNewValue.split("/");
-        assertEquals(Long.parseLong(split[split.length - 1]), employee.uuid());
+        assertEquals(split[split.length - 1], employee.uuid());
         assertEquals("ABCDEFGHI", employee.name());
         assertEquals("ABCDEGHI", employee.surname());
         assertEquals("123456789", employee.pesel());
         assertNull(employee.phoneNumber());
         assertNull(employee.dateOfBirth());
         assertNull(employee.departmentId());
+        assertEquals(156, employeeId);
     }
 
     @Test
@@ -307,6 +320,16 @@ class EmployeeControllerInsertEmployeeTest extends IntegrationTest {
         //then
         assertEquals(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value(), response.statusCode());
         assertEquals("Content-Type 'text/plain' is not supported", errorMessage);
+    }
+
+    private long getEmployeeIdFromEmployeeIdMappingByUuid(String uuid) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("uuid", uuid);
+        try {
+            return jdbcTemplate.queryForObject(GET_EMPLOYEE_ID_FROM_EMPLOYEE_ID_MAPPING_BY_UUID, params, Long.class);
+        } catch (EmptyResultDataAccessException ignore) {
+            return 0;
+        }
     }
 
 }
